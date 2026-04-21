@@ -1,0 +1,47 @@
+services:
+  jira:
+    build: ./jira
+    image: jira:1.0.0
+    ports:
+      - "3000:3000"            
+    environment:
+      - DB_HOST=postgres_db    
+      - DB_USER=ivan
+      - DB_PASSWORD=123456
+      - DB_NAME=mydatabase
+    depends_on:
+      - postgres_db            
+    networks:
+      - app-network
+
+  python:
+    build: ./python
+    image: python:1.0.0       
+    ports:
+      - "5001:5000"
+    environment:
+      - DB_HOST=postgres_db
+      - DB_USER=ivan
+      - DB_PASSWORD=123456
+      - DB_NAME=mydatabase
+    depends_on:
+      - postgres_db
+    networks:
+      - app-network
+
+  postgres_db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=ivan
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=mydatabase
+    ports:
+      - "5432:5432"            
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data   
+    networks:
+      - app-network              
+
+networks:
+  app-network:                 
+    driver: bridge
